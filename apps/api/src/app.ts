@@ -33,6 +33,7 @@ import { projectStorageRoutes } from "./modules/projects/project-storage.routes"
 import { deploymentRoutes } from "./modules/deployments/deployment.routes";
 import { domainRoutes } from "./modules/domains/domain.routes";
 import { dnsRoutes } from "./modules/dns/dns.routes";
+import { awsRoutes } from "./modules/aws/aws.routes";
 import { credentialRoutes } from "./modules/credentials/credential.routes";
 import { issuesRoutes } from "./modules/issues/issues.routes";
 import { jobRoutes } from "./modules/jobs/job.routes";
@@ -180,6 +181,7 @@ app.route("/api/deployments", deploymentRoutes);
 app.route("/api/domains", domainRoutes);
 app.route("/api/dns", dnsRoutes);
 app.route("/api/credentials", credentialRoutes);
+app.route("/api/aws", awsRoutes);
 app.route("/api/webhooks", webhookRoutes);
 app.route("/api/github", githubRoutes);
 app.route("/api/analytics", analyticsRoutes);

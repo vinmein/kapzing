@@ -31,7 +31,7 @@
 import { normalizeRegistryHost } from "./image-ref";
 
 /** What a credential is FOR. Consumers ask by capability, never by provider id. */
-export type CredentialCapability = "image-pull" | "dns";
+export type CredentialCapability = "image-pull" | "dns" | "aws";
 
 export type CredentialFieldType = "text" | "secret" | "select";
 
@@ -92,6 +92,21 @@ export interface CredentialProvider {
  */
 export const CREDENTIAL_PROVIDERS = [
   {
+    id: "aws",
+    label: "AWS",
+    capability: "aws",
+    icon: "amazonwebservices",
+    summary: "Manage S3 and CloudFront sites in an AWS account.",
+    selector: { label: "AWS account ID", required: true, placeholder: "123456789012" },
+    fields: [
+      { key: "accessKeyId", label: "Access key ID", type: "secret", required: true },
+      { key: "secretAccessKey", label: "Secret access key", type: "secret", required: true },
+      { key: "sessionToken", label: "Session token (temporary credentials)", type: "secret" },
+      { key: "roleArn", label: "Role ARN (optional)", type: "text" },
+      { key: "externalId", label: "External ID (optional)", type: "secret" },
+    ],
+  },
+  {
     id: "docker-registry",
     label: "Container registry",
     capability: "image-pull",
@@ -125,7 +140,8 @@ export const CREDENTIAL_PROVIDERS = [
     label: "Cloudflare",
     capability: "dns",
     icon: "cloudflare",
-    summary: "Let Openship write the DNS records a custom domain needs, instead of printing them to paste.",
+    summary:
+      "Let Openship write the DNS records a custom domain needs, instead of printing them to paste.",
     // Org-wide: the token addresses every zone it can see, so there is nothing to scope
     // it to. See CredentialSelector.
     selector: null,

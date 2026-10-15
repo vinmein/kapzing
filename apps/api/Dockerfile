@@ -4,6 +4,9 @@
 FROM oven/bun:1.3.3 AS builder
 WORKDIR /app
 
+# Server images do not need the desktop workspace's Electron binary.
+ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1
+
 COPY package.json bun.lock pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
 COPY packages/ ./packages/
@@ -16,7 +19,7 @@ COPY apps/ ./apps/
 # rebuild doesn't re-fetch the graph. (Cache mount needs BuildKit — Compose v2
 # enables it by default.)
 RUN --mount=type=cache,target=/root/.bun/install/cache \
-    bun install --frozen-lockfile \
+    bun install --frozen-lockfile --filter @repo/api \
  && cd apps/api && bun run build
 
 # ─── Production stage ──────────────────────────────────

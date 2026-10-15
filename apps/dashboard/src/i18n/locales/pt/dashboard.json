@@ -56,6 +56,7 @@
   },
   "nav": {
     "home": "Início",
+    "awsSites": "Create AWS site",
     "new-project": "Novo Projeto",
     "projects": "Projetos",
     "deployments": "Implantações",

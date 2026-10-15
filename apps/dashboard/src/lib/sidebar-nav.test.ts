@@ -62,6 +62,7 @@ describe("getNavSections (the platform rail)", () => {
       "home",
       "projects",
       "apps",
+      "awsSites",
       "deployments",
       "issues",
     ]);

@@ -3,6 +3,9 @@
 FROM oven/bun:1.3.3 AS builder
 WORKDIR /app
 
+# Server images do not need the desktop workspace's Electron binary.
+ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1
+
 COPY package.json bun.lock pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
 COPY packages/ ./packages/
@@ -13,7 +16,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # build time (NEXT_PUBLIC_* is inlined) so the dashboard never calls a hardcoded
 # API host — works behind any reverse proxy / on a remote host.
 ENV NEXT_PUBLIC_API_PROXY=true
-RUN bun install && cd apps/dashboard && bun run build
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install --frozen-lockfile --filter @repo/dashboard \
+ && cd apps/dashboard && bun run build
 
 # ─── Production stage ──────────────────────────────────
 FROM node:22-alpine AS runner

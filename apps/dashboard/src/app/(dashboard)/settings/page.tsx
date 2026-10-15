@@ -18,7 +18,7 @@
  */
 
 import { Suspense, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { usePlatform } from "@/context/PlatformContext";
 import { useCloud } from "@/context/CloudContext";
 import { useToast } from "@/context/ToastContext";
@@ -73,6 +73,10 @@ function SettingsPageInner() {
   const { showToast } = useToast();
   const { t } = useI18n();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  useEffect(() => {
+    if (searchParams.get("tab") === "aws") router.replace("/aws-sites");
+  }, [searchParams, router]);
   const { activeTab } = useSettingsTabs();
 
   /**

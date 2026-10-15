@@ -3,11 +3,20 @@ import { APIError } from "better-auth/api";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { bearer, mcp, emailOTP } from "better-auth/plugins";
 import { organization } from "better-auth/plugins/organization";
-import { defaultStatements, adminAc, memberAc, ownerAc } from "better-auth/plugins/organization/access";
+import {
+  defaultStatements,
+  adminAc,
+  memberAc,
+  ownerAc,
+} from "better-auth/plugins/organization/access";
 import { createAccessControl } from "better-auth/plugins/access";
 import { db, getDriver, repos, schema, and, eq, gt } from "@repo/db";
 import { env, runtimeTarget, runtimeTargetId, trustedOrigins } from "../config/env";
-import { resolveAuthBaseUrl, resolveDashboardPublicUrl, refreshSelfAppPublicUrl } from "./public-url";
+import {
+  resolveAuthBaseUrl,
+  resolveDashboardPublicUrl,
+  refreshSelfAppPublicUrl,
+} from "./public-url";
 import { sendMail, smtpEnabled, canSendMail, requireEmailVerificationStrict } from "./mail";
 import {
   resetPasswordOtpEmail,
@@ -16,10 +25,7 @@ import {
   organizationInviteEmail,
 } from "./email-templates";
 import { memberAudit } from "../modules/audit/member-emitter";
-import {
-  getOrgBillingState,
-  teardownBillingForOrg,
-} from "../modules/billing/billing-org-cleanup";
+import { getOrgBillingState, teardownBillingForOrg } from "../modules/billing/billing-org-cleanup";
 import { provisionUser } from "./provision-user";
 import { safeErrorMessage } from "@repo/core";
 
@@ -229,7 +235,7 @@ export const auth = betterAuth({
   /* ---------- Session ---------- */
   session: {
     expiresIn: 60 * 60 * 24 * 30, // 30 days
-    updateAge: 60 * 60,            // refresh session every hour
+    updateAge: 60 * 60, // refresh session every hour
     ...(useSessionCookieCache
       ? {
           cookieCache: {
@@ -375,6 +381,7 @@ export const auth = betterAuth({
 
   /* ---------- Plugins ---------- */
   plugins: [
+
     /**
      * Bearer auth — accepts `Authorization: Bearer <session.token>` as
      * an alternative to the session cookie. Needed for server-to-server
@@ -533,7 +540,7 @@ export const auth = betterAuth({
     organization({
       allowUserToCreateOrganization: true,
       organizationLimit: 10, // per-user cap on org creation
-      membershipLimit: 100,  // per-org cap on member count
+      membershipLimit: 100, // per-org cap on member count
       creatorRole: "owner",
       invitationExpiresIn: 60 * 60 * 24 * 7, // 7 days
       /**
@@ -755,8 +762,8 @@ export const auth = betterAuth({
           //      personal org. The column is NOT NULL by schema.
           //   4. Emit one audit row with the full summary.
           const memberSnapshot =
-            (organization as { _orgDeleteMemberSnapshot?: unknown })
-              ._orgDeleteMemberSnapshot ?? null;
+            (organization as { _orgDeleteMemberSnapshot?: unknown })._orgDeleteMemberSnapshot ??
+            null;
 
           let billingResult: {
             subscriptionsCancelled: number;
@@ -776,21 +783,14 @@ export const auth = betterAuth({
 
           let grantsDeleted = 0;
           try {
-            grantsDeleted = await repos.resourceGrant.deleteByOrganization(
-              organization.id,
-            );
+            grantsDeleted = await repos.resourceGrant.deleteByOrganization(organization.id);
           } catch (err) {
-            console.error(
-              "[organizationHooks.afterDeleteOrganization] grant cleanup failed:",
-              err,
-            );
+            console.error("[organizationHooks.afterDeleteOrganization] grant cleanup failed:", err);
           }
 
           let sessionsRepointed = 0;
           try {
-            sessionsRepointed = await repos.session.clearActiveOrganizationId(
-              organization.id,
-            );
+            sessionsRepointed = await repos.session.clearActiveOrganizationId(organization.id);
           } catch (err) {
             console.error(
               "[organizationHooks.afterDeleteOrganization] session re-point failed:",
@@ -812,8 +812,7 @@ export const auth = betterAuth({
               after: {
                 subscriptionsCancelled: billingResult?.subscriptionsCancelled ?? 0,
                 subscriptionsFailed: billingResult?.subscriptionsFailed ?? 0,
-                namespaceDecommissioned:
-                  billingResult?.namespaceDecommissioned ?? false,
+                namespaceDecommissioned: billingResult?.namespaceDecommissioned ?? false,
                 customerDeleted: billingResult?.customerDeleted ?? false,
                 billingErrors: billingResult?.errors ?? [],
                 grantsDeleted,
@@ -850,10 +849,7 @@ export const auth = betterAuth({
             await repos.resourceGrant.deleteByMember(organization.id, member.userId);
           } catch (err) {
             const message = safeErrorMessage(err);
-            console.error(
-              "[organizationHooks.afterRemoveMember] grant cleanup failed:",
-              err,
-            );
+            console.error("[organizationHooks.afterRemoveMember] grant cleanup failed:", err);
             await memberAudit.emit(
               { organizationId: organization.id, actorUserId: user.id },
               {
@@ -873,10 +869,7 @@ export const auth = betterAuth({
           // streaming this org's events to a removed member indefinitely. Best-
           // effort + audited, same as the grant cleanup above.
           try {
-            await repos.notificationSubscription.deleteAllForMember(
-              member.userId,
-              organization.id,
-            );
+            await repos.notificationSubscription.deleteAllForMember(member.userId, organization.id);
           } catch (err) {
             const message = safeErrorMessage(err);
             console.error(

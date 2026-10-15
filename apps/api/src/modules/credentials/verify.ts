@@ -88,7 +88,10 @@ const verifyDockerRegistry: Verifier = async ({ selector, publicFields, secrets 
     // The message here is ours, not the fetch layer's: a DNS/TLS error string can contain
     // the full URL, which for some registries embeds the account.
     const why = safeErrorMessage(err).includes("aborted") ? "timed out" : "could not be reached";
-    return { ok: false, reason: `${registry} ${why}. Check the host and that this machine can reach it.` };
+    return {
+      ok: false,
+      reason: `${registry} ${why}. Check the host and that this machine can reach it.`,
+    };
   }
 
   if (probe.status === 200) {
@@ -165,9 +168,28 @@ const verifyCloudflare: Verifier = async ({ secrets }) => {
   }
 };
 
+const verifyAws: Verifier = async ({ selector, publicFields, secrets }) => {
+  if (!selector || !/^\d{12}$/.test(selector))
+    return { ok: false, reason: "Enter a 12-digit AWS account ID." };
+  try {
+    const { awsCredentials, awsAccountId } = await import("../aws/aws-client");
+    const credentials = await awsCredentials(publicFields, secrets);
+    const account = await awsAccountId(credentials);
+    return account === selector
+      ? { ok: true }
+      : { ok: false, reason: "Credentials belong to a different AWS account." };
+  } catch {
+    return {
+      ok: false,
+      reason: "AWS authentication failed. Check the credentials and role trust policy.",
+    };
+  }
+};
+
 const VERIFIERS: Record<string, Verifier> = {
   "docker-registry": verifyDockerRegistry,
   cloudflare: verifyCloudflare,
+  aws: verifyAws,
 };
 
 /** True when this provider can be checked — a provider without one cannot be stored. */
@@ -177,7 +199,11 @@ export function hasVerifier(providerId: string): boolean {
 
 export async function verifyCredentialValues(
   provider: CredentialProvider,
-  args: { selector: string | null; publicFields: Record<string, string>; secrets: CredentialSecrets },
+  args: {
+    selector: string | null;
+    publicFields: Record<string, string>;
+    secrets: CredentialSecrets;
+  },
 ): Promise<VerifyResult> {
   const verifier = VERIFIERS[provider.id];
   if (!verifier) {

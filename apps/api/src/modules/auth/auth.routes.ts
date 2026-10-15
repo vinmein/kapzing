@@ -19,9 +19,16 @@ import { normalizeMcpRedirectUri } from "../../lib/oauth-redirect";
 import { internalAuth } from "../../middleware/internal-auth";
 import { isLoopbackRequest } from "../../middleware/loopback-peer";
 import * as ctrl from "./auth.controller";
+import { cognitoPasswordRoutes } from "./cognito-password.routes";
 import { handleMcpTokenRequest } from "./mcp-token.handler";
 
 export const authRoutes = new Hono();
+authRoutes.route("/cognito", cognitoPasswordRoutes);
+
+// Public metadata only; never expose the client secret or AWS credentials.
+authRoutes.get("/providers", (c) => c.json({
+  cognito: !!(env.COGNITO_USER_POOL_ID && env.COGNITO_CLIENT_ID && env.COGNITO_CLIENT_SECRET),
+}));
 
 if (env.DEPLOY_MODE === "desktop") {
   authRoutes.get("/get-session", ctrl.getSession);

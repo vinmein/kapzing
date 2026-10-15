@@ -55,7 +55,8 @@ export const AUDIT_CATEGORIES = [
   {
     id: "agent",
     label: "AI agents",
-    description: "What connected assistants did over MCP — every tool call, and the scope they hold.",
+    description:
+      "What connected assistants did over MCP — every tool call, and the scope they hold.",
   },
   {
     id: "security",
@@ -322,6 +323,38 @@ export const AUDIT_EVENTS: Record<string, AuditEventDef> = {
   // Category `system`: these are instance-wide settings, not a domain operation — unlike
   // the dns_credential pair below, which stays under `domains` because that is where the
   // operator was standing when they connected it.
+  "aws.site.created": {
+    category: "system",
+    action: "created",
+    label: "AWS site created",
+    tone: "info",
+    description:
+      "An administrator requested an AWS site operation. CloudFormation tracks infrastructure progress.",
+  },
+  "aws.site.updated": {
+    category: "system",
+    action: "updated",
+    label: "AWS site updated",
+    tone: "info",
+    description:
+      "An administrator requested an AWS site operation. CloudFormation tracks infrastructure progress.",
+  },
+  "aws.site.deleted": {
+    category: "system",
+    action: "deleted",
+    label: "AWS site deleted",
+    tone: "warning",
+    description:
+      "An administrator requested an AWS site operation. CloudFormation tracks infrastructure progress.",
+  },
+  "aws.site.invalidated": {
+    category: "system",
+    action: "cleared the CDN cache for",
+    label: "AWS cache cleared",
+    tone: "info",
+    description:
+      "An administrator requested an AWS site operation. CloudFormation tracks infrastructure progress.",
+  },
   "credential.created": {
     category: "system",
     action: "added a credential for",

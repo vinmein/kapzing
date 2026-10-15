@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { COGNITO_USER_POOL_ID_PATTERN } from "../lib/cognito-config";
 import {
   runtimeTarget,
   runtimeTargetId,
@@ -263,6 +264,10 @@ const envSchema = z.object({
    * @see DEVICE_FLOW_CLIENT_ID for the shipped default.
    */
   GITHUB_DEVICE_CLIENT_ID: z.string().optional(),
+  COGNITO_USER_POOL_ID: z.string().regex(COGNITO_USER_POOL_ID_PATTERN, "Invalid Cognito user pool ID").optional(),
+  COGNITO_CLIENT_ID: z.string().min(1).optional(),
+  COGNITO_CLIENT_SECRET: z.string().min(1).optional(),
+
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
 

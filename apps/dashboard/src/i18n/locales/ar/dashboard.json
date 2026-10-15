@@ -56,6 +56,7 @@
   },
   "nav": {
     "home": "الرئيسية",
+    "awsSites": "Create AWS site",
     "new-project": "مشروع جديد",
     "projects": "المشاريع",
     "deployments": "عمليات النشر",
